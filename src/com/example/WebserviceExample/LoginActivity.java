@@ -1,6 +1,9 @@
 package com.example.WebserviceExample;
 
 import android.app.Activity;
+import android.app.Fragment;
+import android.app.FragmentTransaction;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -20,6 +23,7 @@ public class LoginActivity extends Activity {
     private Button twitterButton;
     private User userDetails;
     SharedPreferences preferences;
+    ProgressDialog progressBar;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -28,6 +32,7 @@ public class LoginActivity extends Activity {
         String user = preferences.getString("user", null);
         if (user != null) {
             callDashBoard();
+            finish();
         }
         setContentView(R.layout.login);
         getWidgets();
@@ -39,13 +44,13 @@ public class LoginActivity extends Activity {
     }
 
     private void getWidgets() {
+        progressBar = new ProgressDialog(this);
         facebookButton = (LoginButton) findViewById(R.id.button_facebook);
         twitterButton = (Button) findViewById(R.id.button_twitter);
         twitterButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(getBaseContext(), DashboardActivity.class);
-                startActivity(intent);
+                twitterAuthenticate();
             }
         });
     }
@@ -53,6 +58,7 @@ public class LoginActivity extends Activity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        progressBar.hide();
         super.onActivityResult(requestCode, resultCode, data);
         Session session = Session.getActiveSession();
         session.onActivityResult(this, requestCode, resultCode, data);
@@ -96,8 +102,27 @@ public class LoginActivity extends Activity {
         callDashBoard();
     }
 
+
+    public void populateUserFromTwitter(twitter4j.User user) {
+        userDetails = new User();
+        userDetails.setUserName(user.getName());
+        Log.d("test:", "User: " + userDetails);
+        saveUser(userDetails);
+        callDashBoard();
+    }
+
     private void saveUser(User userDetails) {
         preferences.edit().putString("user", new Gson().toJson(userDetails)).commit();
+    }
+
+    public void twitterAuthenticate() {
+        Log.d("test:", "button clicked");
+        Fragment login = new LoginFragment();
+        FragmentTransaction ft = getFragmentManager().beginTransaction();
+        ft.replace(R.id.content_frame, login);
+        ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
+        ft.addToBackStack(null);
+        ft.commit();
     }
 }
 
