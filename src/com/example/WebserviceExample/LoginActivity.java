@@ -46,6 +46,7 @@ public class LoginActivity extends Activity {
     private void getWidgets() {
         progressBar = new ProgressDialog(this);
         facebookButton = (LoginButton) findViewById(R.id.button_facebook);
+        facebookButton.setReadPermissions("email", "id", "name", "first_name", "last_name", "gender", "locale", "user_birthday");
         twitterButton = (Button) findViewById(R.id.button_twitter);
         twitterButton.setOnClickListener(new View.OnClickListener() {
             @Override

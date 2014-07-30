@@ -105,8 +105,12 @@ public class User implements Parcelable {
     }
 
     public String toString() {
-        return this.birthDay + "-" + this.email + "-" + this.firstName + "-" + this.id + "-" + this.lastName
-                + "-" + this.userName;
+        return "BirthDay:" + this.birthDay + "\n" +
+                "Id:" + this.id + "\n" +
+                "Email:" + this.email + "\n" +
+                "First Name" + this.firstName + "\n" +
+                "Last Name" + this.lastName + "\n" +
+                "User Name" + this.userName;
     }
 
     @Override

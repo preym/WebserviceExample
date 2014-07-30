@@ -1,6 +1,7 @@
 package com.example.WebserviceExample;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.Menu;
@@ -32,7 +33,7 @@ public class DashboardActivity extends Activity {
 
     private void populateStats() {
         TextView userName = (TextView) findViewById(R.id.user_name);
-        userName.setText(user.getName());
+        userName.setText((user.getUserName()) != null ? user.getUserName() : user.getFirstName());
     }
 
     private void getCurrentUser() {
@@ -55,7 +56,15 @@ public class DashboardActivity extends Activity {
         preferences.edit().putString("user", null).commit();
         Session session = Session.getActiveSession();
         if (session != null) session.close();
-        finish();
+        callLoginActivity();
         return true;
+    }
+
+    private void callLoginActivity() {
+        Intent intent = new Intent(this,
+                LoginActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(intent);
     }
 }
