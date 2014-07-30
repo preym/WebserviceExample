@@ -11,7 +11,8 @@
             android:layout_width="wrap_content"
             android:id="@+id/app_banner"
             android:src="@drawable/ic_launcher"
-            android:layout_margin="8dp" android:layout_gravity="center"/>
+            android:layout_margin="8dp"
+            android:layout_gravity="center"/>
 
     <com.facebook.widget.LoginButton
             xmlns:facebook="http://schemas.android.com/apk/res-auto"
