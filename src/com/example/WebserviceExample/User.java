@@ -22,6 +22,27 @@ public class User implements Parcelable {
     String middleName;
     String lastName;
 
+    public String getAccessToken() {
+        return accessToken;
+    }
+
+    public void setAccessToken(String accessToken) {
+        this.accessToken = accessToken;
+    }
+
+    String accessToken;
+
+    public String getSecretKey() {
+        return secretKey;
+    }
+
+    public void setSecretKey(String secretKey) {
+        this.secretKey = secretKey;
+    }
+
+    String secretKey;
+
+
     public String getEmail() {
         return email;
     }
@@ -108,9 +129,11 @@ public class User implements Parcelable {
         return "BirthDay:" + this.birthDay + "\n" +
                 "Id:" + this.id + "\n" +
                 "Email:" + this.email + "\n" +
-                "First Name" + this.firstName + "\n" +
-                "Last Name" + this.lastName + "\n" +
-                "User Name" + this.userName;
+                "First Name:" + this.firstName + "\n" +
+                "Last Name:" + this.lastName + "\n" +
+                "User Name:" + this.userName + "\n" +
+                "Access Token:" + this.accessToken + "\n" +
+                "Secret Key:" + this.secretKey;
     }
 
     @Override

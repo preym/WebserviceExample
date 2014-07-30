@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.Toast;
 import com.facebook.Request;
 import com.facebook.Response;
 import com.facebook.Session;
@@ -24,6 +25,8 @@ public class LoginActivity extends Activity {
     private User userDetails;
     SharedPreferences preferences;
     ProgressDialog progressBar;
+    GraphUser currentUser;
+    String accessToken;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -76,12 +79,15 @@ public class LoginActivity extends Activity {
                 if (!session.isOpened())
                     session = new Session(getApplicationContext());
                 if (session.isOpened()) {
+//                    accessToken = session.getAccessToken();
                     Request.newMeRequest(session, new Request.GraphUserCallback() {
                         // callback after Graph API response with user object
                         @Override
                         public void onCompleted(GraphUser user, Response response) {
                             if (user != null) {
-                                populateUserFromFB(user);
+                                currentUser = user;
+                                Toast.makeText(getApplicationContext(), accessToken, Toast.LENGTH_SHORT).show();
+                                populateUserFromFB();
                             } else {
                             }
                         }
@@ -92,13 +98,14 @@ public class LoginActivity extends Activity {
         });
     }
 
-    private void populateUserFromFB(GraphUser currentUser) {
+    private void populateUserFromFB() {
         userDetails = new User();
         userDetails.setFirstName(currentUser.getFirstName());
         userDetails.setLastName(currentUser.getLastName());
         userDetails.setUserName(currentUser.getUsername());
         userDetails.setEmail((String) currentUser.getProperty("email"));
-        Log.d("test:", "User: " + userDetails);
+        userDetails.setAccessToken(accessToken);
+        Log.d("test:", "FB User: " + userDetails);
         saveUser(userDetails);
         callDashBoard();
     }
@@ -106,8 +113,11 @@ public class LoginActivity extends Activity {
 
     public void populateUserFromTwitter(twitter4j.User user) {
         userDetails = new User();
+        userDetails.setId(user.getId());
         userDetails.setUserName(user.getName());
-        Log.d("test:", "User: " + userDetails);
+        userDetails.setAccessToken(getPreferences(0).getString("ACCESS_TOKEN", null));
+        userDetails.setSecretKey(getPreferences(0).getString("ACCESS_TOKEN_SECRET", null));
+        Log.d("test:", "Twitter User: " + userDetails);
         saveUser(userDetails);
         callDashBoard();
     }
@@ -117,7 +127,6 @@ public class LoginActivity extends Activity {
     }
 
     public void twitterAuthenticate() {
-        Log.d("test:", "button clicked");
         Fragment login = new LoginFragment();
         FragmentTransaction ft = getFragmentManager().beginTransaction();
         ft.replace(R.id.content_frame, login);
