@@ -19,17 +19,19 @@ import com.facebook.model.GraphUser;
 import com.facebook.widget.LoginButton;
 import com.google.gson.Gson;
 
+import java.util.Arrays;
+
 public class LoginActivity extends Activity {
     private LoginButton facebookButton;
     private Button twitterButton;
     private User userDetails;
     SharedPreferences preferences;
     ProgressDialog progressBar;
-    GraphUser currentUser;
     String accessToken;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
+        Log.d("test:", "In onCreate");
         super.onCreate(savedInstanceState);
         preferences = getSharedPreferences("user_preferences", 0);
         String user = preferences.getString("user", null);
@@ -43,13 +45,15 @@ public class LoginActivity extends Activity {
 
     private void callDashBoard() {
         Intent intent = new Intent(getBaseContext(), DashboardActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         startActivity(intent);
     }
 
     private void getWidgets() {
         progressBar = new ProgressDialog(this);
         facebookButton = (LoginButton) findViewById(R.id.button_facebook);
-        facebookButton.setReadPermissions("email", "id", "name", "first_name", "last_name", "gender", "locale", "user_birthday");
+        facebookButton.setReadPermissions(Arrays.asList("public_profile", "name", "email", "user_location", "user_birthday", "user_likes"));
         twitterButton = (Button) findViewById(R.id.button_twitter);
         twitterButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -62,7 +66,6 @@ public class LoginActivity extends Activity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        progressBar.hide();
         super.onActivityResult(requestCode, resultCode, data);
         Session session = Session.getActiveSession();
         session.onActivityResult(this, requestCode, resultCode, data);
@@ -79,33 +82,30 @@ public class LoginActivity extends Activity {
                 if (!session.isOpened())
                     session = new Session(getApplicationContext());
                 if (session.isOpened()) {
-//                    accessToken = session.getAccessToken();
+                    accessToken = session.getAccessToken();
                     Request.newMeRequest(session, new Request.GraphUserCallback() {
                         // callback after Graph API response with user object
                         @Override
                         public void onCompleted(GraphUser user, Response response) {
                             if (user != null) {
-                                currentUser = user;
-                                Toast.makeText(getApplicationContext(), accessToken, Toast.LENGTH_SHORT).show();
-                                populateUserFromFB();
+                                populateUserFromFB(user);
                             } else {
+                                Toast.makeText(getApplicationContext(), "Problem connecting to server", Toast.LENGTH_SHORT).show();
                             }
                         }
                     }).executeAsync();
-                } else {
                 }
             }
         });
     }
 
-    private void populateUserFromFB() {
+    private void populateUserFromFB(GraphUser currentUser) {
         userDetails = new User();
         userDetails.setFirstName(currentUser.getFirstName());
         userDetails.setLastName(currentUser.getLastName());
         userDetails.setUserName(currentUser.getUsername());
         userDetails.setEmail((String) currentUser.getProperty("email"));
         userDetails.setAccessToken(accessToken);
-        Log.d("test:", "FB User: " + userDetails);
         saveUser(userDetails);
         callDashBoard();
     }
@@ -117,7 +117,6 @@ public class LoginActivity extends Activity {
         userDetails.setUserName(user.getName());
         userDetails.setAccessToken(getPreferences(0).getString("ACCESS_TOKEN", null));
         userDetails.setSecretKey(getPreferences(0).getString("ACCESS_TOKEN_SECRET", null));
-        Log.d("test:", "Twitter User: " + userDetails);
         saveUser(userDetails);
         callDashBoard();
     }
